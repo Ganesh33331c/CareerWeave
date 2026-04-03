@@ -1,0 +1,47 @@
+# =============================================================================
+# .streamlit/config.toml
+# Streamlit server configuration — optimised for Google Cloud Run
+# =============================================================================
+
+[server]
+# Cloud Run injects $PORT; the Dockerfile CMD passes it in.
+# Hardcoding 8080 here as a safe default.
+port = 8080
+address = "0.0.0.0"
+
+# Headless = no browser auto-launch, no "you can now view your app" banner.
+# Required for containerised environments.
+headless = true
+
+# CORS / XSRF: Cloud Run handles TLS termination at the load balancer.
+# Disabling these prevents 403 errors from Cloud Run's proxy.
+enableCORS = false
+enableXsrfProtection = false
+
+# File watcher is useless (and wasteful) in a container.
+runOnSave = false
+fileWatcherType = "none"
+
+# Increase upload size limit to 25 MB for large resumes / portfolios
+maxUploadSize = 25
+
+[browser]
+# Never phone home with usage stats
+gatherUsageStats = false
+
+# serverAddress must match the Cloud Run service URL (or "localhost" for local)
+serverAddress = "localhost"
+
+[theme]
+# Dark base — our custom CSS overrides these but this prevents the flash
+# of white background on initial load.
+base = "dark"
+backgroundColor            = "#080c10"
+secondaryBackgroundColor   = "#0d1117"
+primaryColor               = "#00e5ff"
+textColor                  = "#e2e8f0"
+
+[logger]
+# "info" is the right verbosity for Cloud Run logs (visible in Cloud Logging)
+level = "info"
+messageFormat = "%(asctime)s %(levelname)s %(name)s: %(message)s"
