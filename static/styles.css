@@ -1,0 +1,356 @@
+/*
+ * CareerWeave — styles.css
+ * Standalone stylesheet for the static landing page.
+ * The Streamlit app uses the inline <style> block in app.py.
+ *
+ * Import in index.html:
+ *   <link rel="stylesheet" href="styles.css" />
+ *
+ * Variables match the Streamlit theme exactly so the two surfaces
+ * feel like one product.
+ */
+
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Syne:wght@400;700;800&display=swap');
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:         #03080f;
+  --surf:       #080e18;
+  --surf-2:     #0d1520;
+
+  /* Borders */
+  --border:     #0f1e30;
+  --border-hi:  rgba(0, 229, 255, 0.25);
+
+  /* Brand colours */
+  --c1:         #00e5ff;   /* electric cyan  — primary accent  */
+  --c2:         #6d28d9;   /* deep violet    — secondary accent */
+  --c3:         #22d3a5;   /* mint           — success state   */
+  --warn:       #f59e0b;   /* amber          — warning state   */
+  --danger:     #ef4444;   /* red            — error / gap     */
+
+  /* Text */
+  --text:       #dde6f0;
+  --muted:      #4a6278;
+  --dim:        #1e2f42;
+
+  /* Typography */
+  --ff-head:    'Syne', sans-serif;
+  --ff-mono:    'Fragment Mono', monospace;
+
+  /* Radii */
+  --r-sm:       6px;
+  --r-md:       10px;
+  --r-lg:       14px;
+
+  /* Shadows */
+  --shadow-glow: 0 4px 24px rgba(0, 229, 255, 0.14);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--ff-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── Typography scale ──────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ff-head);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+h1 { font-size: clamp(2.8rem, 7vw, 6rem); }
+h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+h3 { font-size: 1.2rem; }
+
+p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+a {
+  color: var(--c1);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+a:hover { opacity: 0.75; }
+
+code, pre {
+  font-family: var(--ff-mono);
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--c1);
+}
+code { padding: 0.15em 0.4em; font-size: 0.85em; }
+pre  { padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.7; }
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  padding: 6rem 2.4rem;
+}
+
+/* ── Gradient text utility ──────────────────────────────────────────────────── */
+.grad-text {
+  background: linear-gradient(100deg, var(--c1) 0%, var(--c2) 55%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ff-head);
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  padding: 0.75rem 1.8rem;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--c2), var(--c1));
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--c1); color: var(--c1); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c1);
+  border: 1px solid var(--border-hi);
+  backdrop-filter: blur(6px);
+}
+.btn-ghost:hover { background: rgba(0,229,255,0.06); }
+
+/* ── Cards ───────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.6rem 1.8rem;
+  transition: border-color 0.25s, transform 0.25s;
+  box-shadow: var(--shadow-card);
+}
+.card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+}
+
+.card-accent-top::before {
+  content: '';
+  display: block;
+  height: 2px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: linear-gradient(90deg, var(--c2), var(--c1));
+  margin: -1.6rem -1.8rem 1.6rem;
+}
+
+/* ── Badges / pills ──────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+}
+.badge-cyan {
+  color: var(--c1);
+  background: rgba(0,229,255,0.07);
+  border: 1px solid rgba(0,229,255,0.2);
+}
+.badge-violet {
+  color: #a78bfa;
+  background: rgba(109,40,217,0.1);
+  border: 1px solid rgba(109,40,217,0.25);
+}
+.badge-green {
+  color: var(--c3);
+  background: rgba(34,211,165,0.07);
+  border: 1px solid rgba(34,211,165,0.2);
+}
+.badge-red {
+  color: var(--danger);
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+/* ── Section labels ───────────────────────────────────────────────────────────── */
+.section-tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c1);
+  margin-bottom: 0.8rem;
+}
+
+/* ── Dividers ────────────────────────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* ── Progress bars ───────────────────────────────────────────────────────────── */
+.progress-wrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--c2), var(--c1));
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Terminal block ──────────────────────────────────────────────────────────── */
+.terminal {
+  background: #020609;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  font-family: var(--ff-mono);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+.terminal-bar {
+  background: var(--surf);
+  padding: 0.55rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--border);
+}
+.t-dot { width: 10px; height: 10px; border-radius: 50%; }
+.t-dot.r { background: #ef4444; }
+.t-dot.y { background: #f59e0b; }
+.t-dot.g { background: #22c55e; }
+.terminal-body { padding: 1.2rem 1.4rem; }
+.t-prompt  { color: var(--c2); }
+.t-cmd     { color: var(--text); }
+.t-out     { color: var(--muted); }
+.t-success { color: var(--c3); }
+.t-accent  { color: var(--c1); }
+.t-warn    { color: var(--warn); }
+
+/* ── Cursor blink ─────────────────────────────────────────────────────────────── */
+.cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--c1);
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Dot pulse (live indicator) ──────────────────────────────────────────────── */
+.dot-live {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c1);
+  box-shadow: 0 0 6px var(--c1);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── Grid background texture ─────────────────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    repeating-linear-gradient(0deg,   transparent, transparent 59px, #0f1e3015 59px, #0f1e3015 60px),
+    repeating-linear-gradient(90deg,  transparent, transparent 59px, #0f1e3015 59px, #0f1e3015 60px);
+}
+
+/* ── Glow effects ─────────────────────────────────────────────────────────────── */
+.glow-cyan {
+  box-shadow: 0 0 30px rgba(0,229,255,0.12), 0 0 60px rgba(0,229,255,0.05);
+}
+.glow-violet {
+  box-shadow: 0 0 30px rgba(109,40,217,0.15), 0 0 60px rgba(109,40,217,0.06);
+}
+
+/* ── Staggered fade-in animations ─────────────────────────────────────────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.7s ease forwards;
+}
+.fade-up-1 { animation-delay: 0.1s; }
+.fade-up-2 { animation-delay: 0.2s; }
+.fade-up-3 { animation-delay: 0.35s; }
+.fade-up-4 { animation-delay: 0.5s; }
+.fade-up-5 { animation-delay: 0.65s; }
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive helpers ───────────────────────────────────────────────────────── */
+.hide-mobile  { display: block; }
+.show-mobile  { display: none; }
+
+@media (max-width: 768px) {
+  .hide-mobile { display: none; }
+  .show-mobile { display: block; }
+  .section     { padding: 4rem 1.2rem; }
+  .wrap        { padding: 0 1.2rem; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 2.6rem; }
+  h2 { font-size: 1.8rem; }
+}
