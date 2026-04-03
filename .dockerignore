@@ -1,0 +1,56 @@
+# =============================================================================
+# .dockerignore — exclude files from the Docker build context
+# Keeps the image lean and prevents secrets from leaking into layers
+# =============================================================================
+
+# ── Python artefacts ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Secrets & local config ────────────────────────────────────────────────────
+.env
+.env.*
+*.key
+secrets/
+service-account*.json
+
+# ── Git & version control ────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── IDE & OS noise ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── Test & CI artefacts ───────────────────────────────────────────────────────
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.github/
+
+# ── Local docs (not needed at runtime) ───────────────────────────────────────
+README.md
+docs/
+*.md
+
+# ── Cloud deployment scripts (not needed inside the container) ────────────────
+deploy.sh
+cloudbuild.yaml

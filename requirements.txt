@@ -1,0 +1,19 @@
+# CareerWeave — GEN AI APAC Hackathon
+# Install with: pip install -r requirements.txt
+
+# ── UI Framework ──────────────────────────────────────────────────────────────
+streamlit>=1.35.0
+
+# ── Google Gemini LLM ─────────────────────────────────────────────────────────
+google-generativeai>=0.7.0
+
+# ── LangChain (Orchestration + PromptTemplate) ────────────────────────────────
+langchain>=0.2.0
+langchain-core>=0.2.0
+
+# ── Web Scraping (SerpApi wrapper) ────────────────────────────────────────────
+requests>=2.31.0
+
+# ── Document Parsing ──────────────────────────────────────────────────────────
+PyPDF2>=3.0.1
+docx2txt>=0.8
