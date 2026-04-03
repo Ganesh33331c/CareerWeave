@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — CareerWeave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Fragment+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #03080f; --c1: #00e5ff; --c2: #6d28d9;
+      --text: #dde6f0; --muted: #4a6278; --border: #0f1e30;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Fragment Mono', monospace;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    }
+    .container { text-align: center; padding: 2rem; }
+    .code {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(5rem, 20vw, 10rem); font-weight: 800;
+      background: linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; margin-bottom: 1rem;
+    }
+    .msg { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .sub { font-size: 0.75rem; color: var(--border); margin-bottom: 2rem; }
+    .back {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(90deg, var(--c2), var(--c1));
+      color: #fff; text-decoration: none;
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 0.85rem; padding: 0.65rem 1.6rem;
+      border-radius: 8px; transition: opacity .2s;
+    }
+    .back:hover { opacity: .8; }
+    .grid {
+      position: fixed; inset: 0; pointer-events: none;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, #0f1e3012 59px, #0f1e3012 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, #0f1e3012 59px, #0f1e3012 60px);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="container">
+    <div class="code">404</div>
+    <div class="msg">Page not found.</div>
+    <div class="sub">// The route you're looking for doesn't exist in this pipeline.</div>
+    <a href="/index.html" class="back">← Back to CareerWeave</a>
+  </div>
+</body>
+</html>

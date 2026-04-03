@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CareerWeave — Multi-Agent Job Orchestrator. Powered by Gemini + SerpApi. GEN AI APAC Hackathon." />
+  <title>CareerWeave · Multi-Agent Job Orchestrator</title>
+
+  <!-- Fonts: Clash Display (bold display) + Fragment Mono (technical body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & base ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #03080f;
+      --surf:     #080e18;
+      --border:   #0f1e30;
+      --c1:       #00e5ff;   /* electric cyan */
+      --c2:       #6d28d9;   /* deep violet */
+      --c3:       #22d3a5;   /* mint success */
+      --text:     #dde6f0;
+      --muted:    #4a6278;
+      --ff-head:  'Syne', sans-serif;
+      --ff-mono:  'Fragment Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-mono);
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Custom scrollbar ──────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Noise texture overlay ─────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* ── Grid lines ────────────────────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        repeating-linear-gradient(0deg,   transparent, transparent 59px, #0f1e3018 59px, #0f1e3018 60px),
+        repeating-linear-gradient(90deg,  transparent, transparent 59px, #0f1e3018 59px, #0f1e3018 60px);
+      pointer-events: none;
+    }
+
+    /* ── Layout wrapper ────────────────────────────────────────────────────── */
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════════════════════════════════════ */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 2.4rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(3,8,15,0.88);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: var(--ff-head);
+      font-size: 1.2rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.75rem; letter-spacing: 0.08em;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--c1); }
+
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--c1);
+      color: var(--c1) !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      font-family: var(--ff-head);
+      font-weight: 700;
+      font-size: 0.75rem !important;
+      letter-spacing: 0.06em;
+      transition: background .2s, color .2s !important;
+    }
+    .nav-cta:hover {
+      background: var(--c1) !important;
+      color: var(--bg) !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════════════════════════ */
+    .hero {
+      min-height: 92vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 5rem 2.4rem 4rem;
+      position: relative; overflow: hidden;
+    }
+
+    /* Radial glow behind hero text */
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+      top: -100px; left: -200px;
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(109,40,217,0.08) 0%, transparent 70%);
+      bottom: 0; right: -100px;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.68rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--c1);
+      border: 1px solid rgba(0,229,255,0.25);
+      background: rgba(0,229,255,0.05);
+      padding: 0.35rem 0.9rem; border-radius: 20px;
+      margin-bottom: 1.8rem;
+      opacity: 0; animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+    .dot-live {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--c1); box-shadow: 0 0 6px var(--c1);
+      animation: blink 1.4s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    .hero-title {
+      font-family: var(--ff-head);
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      margin-bottom: 1.4rem;
+      max-width: 820px;
+      opacity: 0; animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+    .hero-title .grad {
+      background: linear-gradient(100deg, var(--c1) 0%, var(--c2) 55%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-family: var(--ff-mono);
+      font-size: 0.9rem; color: var(--muted);
+      max-width: 580px; line-height: 1.8;
+      margin-bottom: 2.8rem;
+      opacity: 0; animation: fadeUp 0.7s ease 0.35s forwards;
+    }
+
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.7s ease 0.5s forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(90deg, var(--c2), var(--c1));
+      color: #fff; text-decoration: none;
+      font-family: var(--ff-head); font-weight: 700;
+      font-size: 0.88rem; letter-spacing: 0.04em;
+      padding: 0.75rem 1.8rem; border-radius: 8px;
+      transition: opacity .2s, transform .2s;
+      box-shadow: 0 4px 24px rgba(0,229,255,0.18);
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-2px); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: transparent;
+      color: var(--text); text-decoration: none;
+      font-family: var(--ff-head); font-weight: 700;
+      font-size: 0.88rem; letter-spacing: 0.04em;
+      padding: 0.75rem 1.8rem; border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: border-color .2s, color .2s, transform .2s;
+    }
+    .btn-secondary:hover { border-color: var(--c1); color: var(--c1); transform: translateY(-2px); }
+
+    /* ── Hero stats strip ───────────────────────────────────────────────────── */
+    .hero-stats {
+      display: flex; gap: 2.4rem; flex-wrap: wrap;
+      margin-top: 4rem; padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      width: 100%;
+      opacity: 0; animation: fadeUp 0.7s ease 0.65s forwards;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: 0.2rem; }
+    .stat-val {
+      font-family: var(--ff-head); font-size: 1.6rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       PIPELINE SECTION
+    ══════════════════════════════════════════════════════════════════════════ */
+    .section { padding: 6rem 2.4rem; }
+    .section-tag {
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--c1); margin-bottom: 0.8rem;
+    }
+    .section-heading {
+      font-family: var(--ff-head); font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--muted); max-width: 520px; font-size: 0.85rem; line-height: 1.8; margin-bottom: 3.5rem; }
+
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .agent-card {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.6rem 1.4rem;
+      position: relative; overflow: hidden;
+      transition: border-color .25s, transform .25s;
+    }
+    .agent-card:hover { border-color: var(--c1); transform: translateY(-4px); }
+
+    .agent-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--c2), var(--c1));
+      opacity: 0; transition: opacity .25s;
+    }
+    .agent-card:hover::before { opacity: 1; }
+
+    .agent-num {
+      font-family: var(--ff-mono); font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.15em;
+      margin-bottom: 0.8rem;
+    }
+    .agent-icon { font-size: 1.8rem; margin-bottom: 0.7rem; display: block; }
+    .agent-name {
+      font-family: var(--ff-head); font-size: 1rem; font-weight: 700;
+      color: var(--c1); margin-bottom: 0.4rem;
+    }
+    .agent-role { font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+    .agent-tech {
+      margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
+      font-size: 0.65rem; color: var(--c2); letter-spacing: 0.08em;
+    }
+
+    /* ── Connector arrows between cards ────────────────────────────────────── */
+    .pipeline-connector {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--border); padding: 0 0.2rem;
+      align-self: center;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       OUTPUT SECTION (what you get)
+    ══════════════════════════════════════════════════════════════════════════ */
+    .output-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+    @media (max-width: 680px) { .output-grid { grid-template-columns: 1fr; } }
+
+    .output-card {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.6rem 1.8rem;
+      transition: border-color .25s;
+    }
+    .output-card:hover { border-color: rgba(0,229,255,0.3); }
+    .output-card.featured {
+      grid-column: 1 / -1;
+      border-color: rgba(0,229,255,0.2);
+      background: linear-gradient(135deg, var(--surf), #080e22);
+    }
+
+    .output-label {
+      font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--c1); margin-bottom: 0.5rem;
+    }
+    .output-title {
+      font-family: var(--ff-head); font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .output-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.75; }
+
+    /* mock ATS bar */
+    .ats-demo { margin-top: 1rem; }
+    .ats-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; margin: 0.5rem 0 0.3rem; overflow: hidden; }
+    .ats-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--c2), var(--c1));
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.16,1,0.3,1) 0.5s;
+    }
+    .ats-bar-fill.animate { width: 82%; }
+    .ats-num { font-family: var(--ff-head); font-size: 1.4rem; font-weight: 800; color: var(--c1); }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       STACK SECTION
+    ══════════════════════════════════════════════════════════════════════════ */
+    .stack-grid {
+      display: flex; flex-wrap: wrap; gap: 0.7rem;
+      margin-top: 0.5rem;
+    }
+    .stack-pill {
+      background: var(--surf); border: 1px solid var(--border);
+      padding: 0.4rem 0.9rem; border-radius: 20px;
+      font-size: 0.72rem; color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .stack-pill:hover { border-color: var(--c1); color: var(--c1); }
+    .stack-pill span { color: var(--c2); margin-right: 4px; }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       TERMINAL MOCKUP
+    ══════════════════════════════════════════════════════════════════════════ */
+    .terminal {
+      background: #020609;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: var(--ff-mono);
+      font-size: 0.78rem;
+      line-height: 1.8;
+      max-width: 640px;
+    }
+    .terminal-bar {
+      background: var(--surf); padding: 0.6rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .t-dot.r { background: #ef4444; }
+    .t-dot.y { background: #f59e0b; }
+    .t-dot.g { background: #22c55e; }
+    .terminal-title { font-size: 0.68rem; color: var(--muted); margin-left: 0.5rem; }
+    .terminal-body { padding: 1.2rem 1.4rem; }
+    .t-line { margin-bottom: 0.15rem; }
+    .t-prompt { color: var(--c2); }
+    .t-cmd { color: var(--text); }
+    .t-out { color: var(--muted); }
+    .t-success { color: var(--c3); }
+    .t-accent { color: var(--c1); }
+    .t-warn { color: #f59e0b; }
+    .cursor { display: inline-block; width: 8px; height: 14px; background: var(--c1); vertical-align: middle; animation: blink 1s infinite; }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       CTA SECTION
+    ══════════════════════════════════════════════════════════════════════════ */
+    .cta-section {
+      padding: 6rem 2.4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(109,40,217,0.08), transparent);
+      pointer-events: none;
+    }
+    .cta-section .section-heading { max-width: 600px; margin: 0 auto 0.8rem; }
+    .cta-section .section-desc { margin: 0 auto 2.4rem; }
+    .cta-section .hero-btns { justify-content: center; }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════════════════════════════════ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.4rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      position: relative; z-index: 1;
+    }
+    .footer-logo { font-family: var(--ff-head); font-size: 0.9rem; font-weight: 800; color: var(--muted); }
+    .footer-note { font-size: 0.7rem; color: var(--border); }
+    .footer-links { display: flex; gap: 1.4rem; list-style: none; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; transition: color .2s; }
+    .footer-links a:hover { color: var(--c1); }
+
+    /* ── Responsive ─────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      .hero { padding: 4rem 1.2rem 3rem; }
+      .section { padding: 4rem 1.2rem; }
+      .pipeline-grid { grid-template-columns: 1fr 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .pipeline-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-logo">🕸️ CareerWeave</div>
+    <ul class="nav-links">
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#outputs">Outputs</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#deploy">Deploy</a></li>
+      <li><a href="app.html" class="nav-cta">Launch App →</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="hero wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+
+    <div class="hero-eyebrow">
+      <div class="dot-live"></div>
+      GEN AI APAC Hackathon · Track 1 · AI Agents with Gemini
+    </div>
+
+    <h1 class="hero-title">
+      Weave your<br/><span class="grad">career signal</span><br/>from the noise.
+    </h1>
+
+    <p class="hero-sub">
+      CareerWeave is an autonomous 4-agent pipeline that scrapes live jobs,
+      scores your resume against ATS algorithms, rewrites your bullets with
+      JD-matching language, and generates targeted interview questions —
+      in a single click.
+    </p>
+
+    <div class="hero-btns">
+      <a href="#app-link" class="btn-primary">🚀 Launch CareerWeave</a>
+      <a href="https://github.com/YOUR_USERNAME/careerweave" class="btn-secondary" target="_blank">
+        ⭐ View on GitHub
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-val">4</span>
+        <span class="stat-label">Autonomous Agents</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">1</span>
+        <span class="stat-label">Gemini API Call</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">~15s</span>
+        <span class="stat-label">Full Pipeline</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">JSON</span>
+        <span class="stat-label">Structured Output</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">∞</span>
+        <span class="stat-label">Job Markets</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PIPELINE ──────────────────────────────────────────────────────────── -->
+  <section class="section" id="pipeline">
+    <div class="wrap">
+      <div class="section-tag">// agent architecture</div>
+      <h2 class="section-heading">Four agents.<br/>One seamless pipeline.</h2>
+      <p class="section-desc">
+        Each agent has a single responsibility. Together they turn a raw resume
+        and a job search query into a fully optimised career package.
+      </p>
+
+      <div class="pipeline-grid">
+        <div class="agent-card">
+          <div class="agent-num">AGENT_01</div>
+          <span class="agent-icon">🔍</span>
+          <div class="agent-name">Scout</div>
+          <div class="agent-role">Queries the SerpApi Google Jobs engine to find the top live job matching your search term. Returns title, company, location, and full job description.</div>
+          <div class="agent-tech">↳ SerpApi · Google Jobs Engine</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-num">AGENT_02</div>
+          <span class="agent-icon">📊</span>
+          <div class="agent-name">Analyst</div>
+          <div class="agent-role">Cross-references your resume keywords against the JD vocabulary. Produces an ATS match score 0–100 with a 2-sentence reasoning explanation.</div>
+          <div class="agent-tech">↳ Gemini 1.5 Flash · LangChain</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-num">AGENT_03</div>
+          <span class="agent-icon">✍️</span>
+          <div class="agent-name">Architect</div>
+          <div class="agent-role">Rewrites your resume's professional summary and 5 key bullets using JD-matching language, action verbs, and quantified impact statements.</div>
+          <div class="agent-tech">↳ Gemini 1.5 Flash · PromptTemplate</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-num">AGENT_04</div>
+          <span class="agent-icon">🎯</span>
+          <div class="agent-name">Coach</div>
+          <div class="agent-role">Generates 3 highly specific technical and behavioural interview questions grounded in the exact technologies and responsibilities of the target JD.</div>
+          <div class="agent-tech">↳ Gemini 1.5 Flash · Structured JSON</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OUTPUTS ────────────────────────────────────────────────────────────── -->
+  <section class="section" id="outputs" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-tag">// what you get</div>
+      <h2 class="section-heading">Every output.<br/>Actionable.</h2>
+      <p class="section-desc">CareerWeave returns a structured JSON payload rendered across four result panels.</p>
+
+      <div class="output-grid">
+        <div class="output-card featured">
+          <div class="output-label">ATS Intelligence</div>
+          <div class="output-title">Real-time ATS Match Score</div>
+          <div class="output-desc">Visual score from 0–100 with colour-coded match tier (Strong / Partial / Low) and a 2-sentence reasoning breakdown explaining exactly why you scored that number.</div>
+          <div class="ats-demo">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <span style="font-size:.7rem; color:var(--muted);">ATS KEYWORD MATCH</span>
+              <span class="ats-num" id="ats-num">0%</span>
+            </div>
+            <div class="ats-bar-wrap"><div class="ats-bar-fill" id="ats-bar"></div></div>
+            <span style="font-size:.65rem; color:var(--c3);">● STRONG MATCH</span>
+          </div>
+        </div>
+
+        <div class="output-card">
+          <div class="output-label">Resume Intelligence</div>
+          <div class="output-title">Tailored Resume Bullets</div>
+          <div class="output-desc">Side-by-side comparison of your original resume vs CareerWeave's rewritten version — same experience, JD-optimised language.</div>
+        </div>
+
+        <div class="output-card">
+          <div class="output-label">Gap Analysis</div>
+          <div class="output-title">Skills Gap Report</div>
+          <div class="output-desc">3 skills present in the JD but absent from your resume — your prioritised upskilling roadmap.</div>
+        </div>
+
+        <div class="output-card">
+          <div class="output-label">Interview Prep</div>
+          <div class="output-title">3 Targeted Questions</div>
+          <div class="output-desc">Role-specific questions grounded in the actual JD — each with an interviewer intent hint and a tactical answer tip.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TERMINAL MOCKUP ────────────────────────────────────────────────────── -->
+  <section class="section" id="deploy" style="padding-top:0;">
+    <div class="wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:center;">
+      <div>
+        <div class="section-tag">// cloud run deployment</div>
+        <h2 class="section-heading" style="font-size:2rem;">One command.<br/>Live on GCP.</h2>
+        <p class="section-desc" style="margin-bottom:1.6rem;">
+          Built for Google Cloud Run. A single deploy script handles Artifact Registry,
+          image build, and Cloud Run deployment. CI/CD via Cloud Build on every git push.
+        </p>
+        <div class="stack-grid">
+          <div class="stack-pill"><span>▲</span>Cloud Run</div>
+          <div class="stack-pill"><span>📦</span>Artifact Registry</div>
+          <div class="stack-pill"><span>⚙️</span>Cloud Build</div>
+          <div class="stack-pill"><span>📝</span>Cloud Logging</div>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="t-dot r"></div>
+          <div class="t-dot y"></div>
+          <div class="t-dot g"></div>
+          <span class="terminal-title">cloud-shell — deploy.sh</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">./deploy.sh</span></div>
+          <div class="t-line t-out">&nbsp;</div>
+          <div class="t-line t-out">🕸️  CareerWeave — Cloud Run Deploy</div>
+          <div class="t-line t-out">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+          <div class="t-line"><span class="t-success">[OK] </span><span class="t-out">APIs enabled</span></div>
+          <div class="t-line"><span class="t-success">[OK] </span><span class="t-out">Artifact Registry ready</span></div>
+          <div class="t-line"><span class="t-success">[OK] </span><span class="t-out">Docker image built</span></div>
+          <div class="t-line"><span class="t-success">[OK] </span><span class="t-out">Image pushed → asia-south1</span></div>
+          <div class="t-line"><span class="t-success">[OK] </span><span class="t-out">Cloud Run deployed ✓</span></div>
+          <div class="t-line t-out">&nbsp;</div>
+          <div class="t-line">🌐 <span class="t-accent">https://careerweave-xxx-uc.a.run.app</span></div>
+          <div class="t-line t-out">&nbsp;</div>
+          <div class="t-line"><span class="t-prompt">$ </span><span class="cursor"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STACK ──────────────────────────────────────────────────────────────── -->
+  <section class="section" id="stack" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-tag">// tech stack</div>
+      <h2 class="section-heading">Built with precision.</h2>
+      <p class="section-desc">Every technology chosen for performance, cost, and hackathon demo speed.</p>
+      <div class="stack-grid">
+        <div class="stack-pill"><span>🤖</span>Gemini 1.5 Flash</div>
+        <div class="stack-pill"><span>🔗</span>LangChain</div>
+        <div class="stack-pill"><span>🌐</span>SerpApi</div>
+        <div class="stack-pill"><span>🎈</span>Streamlit</div>
+        <div class="stack-pill"><span>🐍</span>Python 3.11</div>
+        <div class="stack-pill"><span>🐳</span>Docker</div>
+        <div class="stack-pill"><span>☁️</span>Cloud Run</div>
+        <div class="stack-pill"><span>📦</span>Artifact Registry</div>
+        <div class="stack-pill"><span>📄</span>PyPDF2</div>
+        <div class="stack-pill"><span>📝</span>docx2txt</div>
+        <div class="stack-pill"><span>🔧</span>Cloud Build</div>
+        <div class="stack-pill"><span>🔑</span>Secret Manager</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ────────────────────────────────────────────────────────────────── -->
+  <section class="cta-section" id="app-link">
+    <div class="cta-glow"></div>
+    <div class="wrap">
+      <div class="section-tag">// ready to weave?</div>
+      <h2 class="section-heading">Your next job starts<br/><span style="background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">here.</span></h2>
+      <p class="section-desc">Upload your resume, enter a target role, and let four AI agents do the heavy lifting.</p>
+      <div class="hero-btns">
+        <a href="https://YOUR-CLOUD-RUN-URL.a.run.app" class="btn-primary" target="_blank">🚀 Launch the App</a>
+        <a href="https://github.com/YOUR_USERNAME/careerweave" class="btn-secondary" target="_blank">📂 View Source</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">🕸️ CareerWeave</div>
+    <div class="footer-note">GEN AI APAC Hackathon · Powered by Gemini + SerpApi + Cloud Run</div>
+    <ul class="footer-links">
+      <li><a href="https://aistudio.google.com" target="_blank">Gemini</a></li>
+      <li><a href="https://serpapi.com" target="_blank">SerpApi</a></li>
+      <li><a href="https://cloud.google.com/run" target="_blank">Cloud Run</a></li>
+      <li><a href="https://github.com/YOUR_USERNAME/careerweave" target="_blank">GitHub</a></li>
+    </ul>
+  </footer>
+
+  <!-- ── Scripts ────────────────────────────────────────────────────────────── -->
+  <script>
+    // Animate ATS bar when it scrolls into view
+    const bar = document.getElementById('ats-bar');
+    const num = document.getElementById('ats-num');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          bar.classList.add('animate');
+          // Count up number
+          let start = 0, end = 82, duration = 1400;
+          let startTime = null;
+          function step(ts) {
+            if (!startTime) startTime = ts;
+            const progress = Math.min((ts - startTime) / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            num.textContent = Math.round(ease * end) + '%';
+            if (progress < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+
+    if (bar) observer.observe(bar);
+
+    // Fade-in on scroll for agent cards and output cards
+    const fadeEls = document.querySelectorAll('.agent-card, .output-card, .stack-pill');
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '0';
+          e.target.style.transform = 'translateY(16px)';
+          e.target.style.transition = `opacity .5s ease ${i * 0.07}s, transform .5s ease ${i * 0.07}s, border-color .25s`;
+          requestAnimationFrame(() => {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'translateY(0)';
+          });
+          fadeObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    fadeEls.forEach(el => {
+      el.style.opacity = '0';
+      fadeObserver.observe(el);
+    });
+  </script>
+</body>
+</html>
